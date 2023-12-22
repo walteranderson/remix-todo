@@ -1,12 +1,14 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LinksFunction, json } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { FunctionComponent } from "react";
+import { Button } from "~/components/button/button";
+import { TextInput } from "~/components/text-input/text-input";
 import { Todo, db } from "~/db.server";
+import styles from "~/styles/index.css";
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
   const intent = body.get("intent");
-  console.log(intent);
 
   switch (intent) {
     case "create": {
@@ -40,27 +42,29 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader() {
-  console.log("loader");
   const todos = await db.todo.findMany();
   return json(todos);
 }
+
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function Index() {
   const fetcher = useFetcher();
   const todos = useLoaderData<typeof loader>();
   return (
-    <>
+    <div className="todo-list">
+      <h1>Remix Todo</h1>
       {todos.length
         ? todos.map((todo) => <TodoItem key={todo.id} todo={todo} />)
         : "No todos"}
 
       <fetcher.Form method="post">
-        <input type="text" name="title" placeholder="Title" />
-        <button type="submit" name="intent" value="create">
-          Submit
-        </button>
+        <TextInput name="title" placeholder="Title" />
+        <Button type="submit" name="intent" value="create">
+          Test
+        </Button>
       </fetcher.Form>
-    </>
+    </div>
   );
 }
 
@@ -68,15 +72,15 @@ const TodoItem: FunctionComponent<{ todo: Todo }> = ({ todo }) => {
   const fetcher = useFetcher();
 
   return (
-    <div>
-      <p style={{ textDecoration: todo.completed ? "line-through" : "" }}>
-        {todo.title}
-      </p>
+    <div className="todo-item">
       <fetcher.Form method="post">
         <input type="hidden" name="id" value={todo.id} />
         <button type="submit" name="intent" value="toggle-complete">
           {todo.completed ? "Mark Incomplete" : "Mark Complete"}
         </button>
+        <p style={{ textDecoration: todo.completed ? "line-through" : "" }}>
+          {todo.title}
+        </p>
         <button type="submit" name="intent" value="delete">
           Delete
         </button>
