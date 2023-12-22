@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LinksFunction, json } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useRef } from "react";
 import { Button } from "~/components/button/button";
 import { IconButton } from "~/components/button/icon-button";
 import { TextInput } from "~/components/text-input/text-input";
@@ -52,6 +52,13 @@ export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export default function Index() {
   const fetcher = useFetcher();
   const todos = useLoaderData<typeof loader>();
+  const submitting = fetcher.state === "submitting";
+
+  const ref = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    ref.current?.reset();
+  }, [submitting]);
+
   return (
     <div className="todo-list">
       <h1>Remix Todo</h1>
@@ -59,10 +66,10 @@ export default function Index() {
         ? todos.map((todo) => <TodoItem key={todo.id} todo={todo} />)
         : "No todos"}
 
-      <fetcher.Form method="post">
-        <TextInput name="title" placeholder="Title" />
+      <fetcher.Form ref={ref} method="post" className="todo-form">
+        <TextInput name="title" placeholder="New Todo" />
         <Button type="submit" name="intent" value="create">
-          Test
+          Add
         </Button>
       </fetcher.Form>
     </div>
@@ -86,9 +93,7 @@ const TodoItem: FunctionComponent<{ todo: Todo }> = ({ todo }) => {
           name="intent"
           value="toggle-complete"
         />
-        <p style={{ textDecoration: todo.completed ? "line-through" : "" }}>
-          {todo.title}
-        </p>
+        <p className={todo.completed ? "completed" : ""}>{todo.title}</p>
         <IconButton
           icon="ic:baseline-delete"
           type="submit"

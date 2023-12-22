@@ -13,6 +13,18 @@
   text-align: center;
 }
 
+/* TODO FORM */
+
+.todo-form {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.todo-form input {
+  flex: 1 1 0;
+}
+
 /* TODO ITEM */
 
 .todo-item form {
@@ -23,6 +35,10 @@
 
 .todo-item p {
   flex: 1 1 0;
+}
+
+.todo-item p.completed {
+  text-decoration: line-through;
 }
 
 

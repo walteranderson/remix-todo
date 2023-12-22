@@ -1,3 +1,6 @@
 .root {
-  background-color: red;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  border: 0;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
