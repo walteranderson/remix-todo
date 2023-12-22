@@ -2,6 +2,7 @@ import { ActionFunctionArgs, LinksFunction, json } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { FunctionComponent } from "react";
 import { Button } from "~/components/button/button";
+import { IconButton } from "~/components/button/icon-button";
 import { TextInput } from "~/components/text-input/text-input";
 import { Todo, db } from "~/db.server";
 import styles from "~/styles/index.css";
@@ -75,15 +76,25 @@ const TodoItem: FunctionComponent<{ todo: Todo }> = ({ todo }) => {
     <div className="todo-item">
       <fetcher.Form method="post">
         <input type="hidden" name="id" value={todo.id} />
-        <button type="submit" name="intent" value="toggle-complete">
-          {todo.completed ? "Mark Incomplete" : "Mark Complete"}
-        </button>
+        <IconButton
+          icon={
+            todo.completed
+              ? "ic:baseline-check-box"
+              : "ic:baseline-check-box-outline-blank"
+          }
+          type="submit"
+          name="intent"
+          value="toggle-complete"
+        />
         <p style={{ textDecoration: todo.completed ? "line-through" : "" }}>
           {todo.title}
         </p>
-        <button type="submit" name="intent" value="delete">
-          Delete
-        </button>
+        <IconButton
+          icon="ic:baseline-delete"
+          type="submit"
+          name="intent"
+          value="delete"
+        />
       </fetcher.Form>
     </div>
   );
