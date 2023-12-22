@@ -4,7 +4,7 @@ import { FunctionComponent, useEffect, useRef } from "react";
 import { Button } from "~/components/button/button";
 import { IconButton } from "~/components/button/icon-button";
 import { TextInput } from "~/components/text-input/text-input";
-import { Todo, db } from "~/db.server";
+import { Todo, todos } from "~/db.server";
 import styles from "~/styles/index.css";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -14,27 +14,22 @@ export async function action({ request }: ActionFunctionArgs) {
   switch (intent) {
     case "create": {
       const title = body.get("title") as string;
-      await db.todo.create({ data: { title, completed: false } });
+      await todos.create(title);
       break;
     }
     case "toggle-complete": {
       const id = body.get("id") as string;
-      const todo = await db.todo.findUnique({ where: { id: Number(id) } });
-      if (!todo) {
-        throw new Response("Not Found", { status: 404 });
+      try {
+        await todos.toggle(Number(id));
+      } catch (err) {
+        const message = (err as Error).message;
+        throw new Response(message, { status: 404 });
       }
-
-      await db.todo.update({
-        data: {
-          completed: !todo.completed,
-        },
-        where: { id: Number(id) },
-      });
       break;
     }
     case "delete": {
       const id = body.get("id") as string;
-      await db.todo.delete({ where: { id: Number(id) } });
+      await todos.delete(Number(id));
       break;
     }
   }
@@ -43,8 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader() {
-  const todos = await db.todo.findMany();
-  return json(todos);
+  return json(await todos.list());
 }
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
